@@ -23,8 +23,11 @@ logging.basicConfig(
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(TOKEN).build()
-    
+ 
     # Handlers    
+    help_handler = CommandHandler('help', commands.help)
+    application.add_handler(help_handler)
+
     start_handler = CommandHandler('start', commands.start)
     application.add_handler(start_handler)
 
