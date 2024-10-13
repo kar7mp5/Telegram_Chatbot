@@ -7,6 +7,7 @@ The Telegram bot was created by referring to the [official docs](https://docs.py
 
 [Install Libraries](#install-libraries)  
 [Quick Start](#quick-start)  
+[File Structure](#file-structure)
 
 ---
 ### Install Libraries
@@ -40,4 +41,17 @@ BOT_TOKEN=<TELEGRAM TOKEN>
 **Run bot**
 ```bash
 $ python3 bot.py
+```
+
+---
+### File Structure
+
+```
+├── commands/           # Telegram bot commands
+│   ├── __init__.py
+│   ├── start.py
+│   ├── unknown.py
+│   └── inline_query.py
+│
+└── .env # Telegram bot API key
 ```
