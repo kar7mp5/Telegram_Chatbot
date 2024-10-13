@@ -5,7 +5,7 @@ from telegram.ext import ContextTypes
 
 description = """\
 `/help` - Show all commands
-`@bot weather <city>` - Show weather forecast for the specified city
+`/weather <city>` - Show weather forecast for the specified city
 """
 
 
