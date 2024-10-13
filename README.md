@@ -55,3 +55,7 @@ $ python3 bot.py
 │
 └── .env # Telegram bot API key
 ```
+
+### Telegram MarkdownV2 style
+
+[Official docs](https://core.telegram.org/bots/api#markdownv2-style)  
