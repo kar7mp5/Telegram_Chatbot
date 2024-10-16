@@ -19,6 +19,11 @@ $ pip3 install -r requirements.txt
 
 ---
 ### Quick Start
+> **Environment Variables**  
+```
+BOT_TOKEN=<Telegram-Bot-API-KEY>
+OPENWEATHERMAP_API_KEY=<OpenWeatherMap-API-KEY>
+```
 
 > **Setup Telegram Bot**  
 [Tutorial Docs](https://core.telegram.org/bots/tutorial) 
