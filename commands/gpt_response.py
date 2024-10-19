@@ -21,6 +21,13 @@ async def gpt_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Returns:
         chat_completion (str): gpt response
     """
+    
+    system_prompt = """Think and write your step-by-step reasoning before responding.
+    Write the article title using # in Markdown syntax.
+    The character limit is 80 characters.
+    Please write all conversations in Korean(한국어).
+    """
+
     client = OpenAI(
         api_key=OPENAI_API_KEY
     )
@@ -28,11 +35,15 @@ async def gpt_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_completion = client.chat.completions.create(
         messages=[
             {
-                "role": "user",
+                "role": "system", 
+                "content": system_prompt,
+            },  
+            {
+                "role": "user", 
                 "content": update.message.text,
             }
         ],
         model="gpt-3.5-turbo",
-    ) 
-
+    )
+    
     await update.message.reply_text(chat_completion.choices[0].message.content)
