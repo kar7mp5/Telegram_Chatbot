@@ -6,3 +6,6 @@ requests
 
 # GPT API
 openai
+
+# Local LLM
+langchain_community
