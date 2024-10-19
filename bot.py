@@ -1,6 +1,6 @@
 # bot.py
 import logging
-from telegram.ext import filters, ApplicationBuilder, CommandHandler, InlineQueryHandler, MessageHandler
+from telegram.ext import filters, ApplicationBuilder, CommandHandler, InlineQueryHandler, MessageHandler, ContextTypes
 
 # Load bot commands
 import commands
@@ -21,10 +21,12 @@ logging.basicConfig(
 )
 
 
+
+
 if __name__ == '__main__':
     application = ApplicationBuilder().token(TOKEN).build()
- 
-    # Handlers    
+
+    # Handlers
     help_handler = CommandHandler('help', commands.help)
     application.add_handler(help_handler)
 
@@ -33,6 +35,8 @@ if __name__ == '__main__':
 
     # inlinequery_handler = InlineQueryHandler(commands.inline_query)
     # application.add_handler(inlinequery_handler)
+    
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, commands.gpt_response))
 
     # Other handlers
     unknown_handler = MessageHandler(filters.COMMAND, commands.unknown)
