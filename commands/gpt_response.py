@@ -31,19 +31,21 @@ async def gpt_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     client = OpenAI(
         api_key=OPENAI_API_KEY
     )
-    
+
     chat_completion = client.chat.completions.create(
         messages=[
             {
                 "role": "system", 
-                "content": system_prompt,
-            },  
+                "content": system_prompt
+            }, 
             {
                 "role": "user", 
                 "content": update.message.text,
             }
         ],
         model="gpt-3.5-turbo",
+        max_tokens=150,
+        temperature=0,
     )
-    
+
     await update.message.reply_text(chat_completion.choices[0].message.content)
