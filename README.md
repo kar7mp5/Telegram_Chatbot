@@ -64,12 +64,9 @@ $ python3 bot.py
 
 ```
 ├── commands/          # Telegram bot commands
-│   ├── __init__.py
-│   ├── start.py
-│   ├── unknown.py
-│   └── inline_query.py
+│   └── __init__.py
 │
-└── .env # Telegram bot API key
+└── .env # API keys
 ```
 
 ---
