@@ -9,3 +9,8 @@ openai
 
 # Local LLM
 langchain_community
+sentence-transformers
+bs4
+
+# VecDB
+chromadb
