@@ -1,4 +1,4 @@
-#! ./venv/bin/python
+#! ./venv/bin/python3
 
 """
 bot.py
@@ -22,47 +22,57 @@ import os
 
 
 
-def main():
-    # Set up the log style
-    logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.INFO
-    )
+class Agent(object):
+    
+    def __init__(self):
+        # Load telegram token
+        load_dotenv()
+        TOKEN = os.getenv("BOT_TOKEN")
+
+        self.application = ApplicationBuilder().token(TOKEN).build()
+        self.setup_logging()
+        self.command_preview()
 
 
-    # Load telegram token
-    load_dotenv()
-    TOKEN = os.getenv("BOT_TOKEN")
+    def setup_logging(self):
+        # Set up the log style
+        logging.basicConfig(
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            level=logging.INFO
+        )
 
-    application = ApplicationBuilder().token(TOKEN).build()
 
-    # Register bot commands for preview
-    commands_list = [
-        BotCommand(command="help", description="도움말 보기"),
-        BotCommand(command="weather", description="날씨 정보 확인 (/weather <도시 이름>)")
-    ]
-    application.bot.set_my_commands(commands_list)
+    def command_preview(self):
+        # Register bot commands for preview
+        commands_list = [
+            BotCommand(command="help", description="도움말 보기"),
+            BotCommand(command="weather", description="날씨 정보 확인")
+        ]
+        self.application.bot.set_my_commands(commands_list)
 
-    # Handlers
-    start_handler = CommandHandler('start', commands.start)
-    application.add_handler(start_handler)
 
-    help_handler = CommandHandler('help', commands.help)
-    application.add_handler(help_handler)
+    def update_handler(self):
+        # Handlers
+        start_handler = CommandHandler('start', commands.start)
+        self.application.add_handler(start_handler)
 
-    weather_handler = CommandHandler('weather', commands.weather)
-    application.add_handler(weather_handler)
+        help_handler = CommandHandler('help', commands.help)
+        self.application.add_handler(help_handler)
 
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, commands.gpt_response))
+        weather_handler = CommandHandler('weather', commands.weather)
+        self.application.add_handler(weather_handler)
 
-    # Other handlers
-    unknown_handler = MessageHandler(filters.COMMAND, commands.unknown)
-    application.add_handler(unknown_handler)
+        self.application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, commands.gpt_response))
 
-    application.run_polling()
+        # Other handlers
+        unknown_handler = MessageHandler(filters.COMMAND, commands.unknown)
+        self.application.add_handler(unknown_handler)
+
+        self.application.run_polling()
 
 
 
 
 if __name__ == '__main__':
-    main()
+    agent = Agent()
+    agent.update_handler()
