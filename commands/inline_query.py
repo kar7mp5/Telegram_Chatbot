@@ -1,7 +1,10 @@
 # inline_query.py
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent
-from telegram.ext import filters, ApplicationBuilder, MessageHandler, ContextTypes, CommandHandler, InlineQueryHandler
+from telegram.ext import ContextTypes
+from uuid import uuid4
+
 import random
+
 
 async def getAdvice():
     # Hardcoded advice for demonstration; replace with file reading if needed.
@@ -15,9 +18,11 @@ async def getAdvice():
     # Return a random piece of advice.
     return random.choice(advice_list)
 
+
 async def advice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     advice_message = await getAdvice()  # Await the asynchronous function
     await context.bot.send_message(chat_id=update.effective_chat.id, text=advice_message)
+
 
 async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.inline_query.query
