@@ -8,6 +8,7 @@ The ability to give commands through `/` in Telegram and chat with bots in gener
 """
 
 import logging
+from telegram import BotCommand
 from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler
 
 # Load bot commands
@@ -35,16 +36,24 @@ def main():
 
     application = ApplicationBuilder().token(TOKEN).build()
 
+    # Register bot commands for preview
+    commands_list = [
+        BotCommand(command="help", description="도움말 보기"),
+        BotCommand(command="weather", description="날씨 정보 확인 (/weather <도시 이름>)")
+    ]
+    application.bot.set_my_commands(commands_list)
 
     # Handlers
+    start_handler = CommandHandler('start', commands.start)
+    application.add_handler(start_handler)
+
     help_handler = CommandHandler('help', commands.help)
     application.add_handler(help_handler)
 
     weather_handler = CommandHandler('weather', commands.weather)
     application.add_handler(weather_handler)
-    
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, commands.gpt_response))
 
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, commands.gpt_response))
 
     # Other handlers
     unknown_handler = MessageHandler(filters.COMMAND, commands.unknown)
