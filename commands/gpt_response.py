@@ -29,6 +29,10 @@ async def gpt_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
         messages=[
             {
                 "role": "user",
+                "content": "you're kind bot and think step by step.",
+            },
+            {
+                "role": "user",
                 "content": update.message.text,
             }
         ],
