@@ -23,9 +23,13 @@ import os
 
 
 class Agent(object):
-    
+
     def __init__(self):
-        # Load telegram token
+        """
+        Initializes the Agent object by loading the Telegram bot token
+        from the environment and setting up the application, logging,
+        and bot commands.
+        """
         load_dotenv()
         TOKEN = os.getenv("BOT_TOKEN")
 
@@ -33,26 +37,42 @@ class Agent(object):
         self.setup_logging()
         self.command_preview()
 
-
     def setup_logging(self):
-        # Set up the log style
+        """
+        Sets up logging for the application with a specific log format
+        and log level set to INFO.
+        """
         logging.basicConfig(
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             level=logging.INFO
         )
 
-
     def command_preview(self):
-        # Register bot commands for preview
+        """
+        Registers the bot commands that users can call, such as 'help' and 'weather'.
+        These commands provide descriptions for use in the bot interface.
+        """
         commands_list = [
             BotCommand(command="help", description="도움말 보기"),
             BotCommand(command="weather", description="날씨 정보 확인")
         ]
         self.application.bot.set_my_commands(commands_list)
 
-
     def update_handler(self):
-        # Handlers
+        """
+        Configures the handlers for various commands and text-based inputs.
+        It adds handlers for commands such as 'start', 'help', 'weather', and general text messages.
+        Additionally, an unknown command handler is added for unrecognized inputs.
+
+        Handlers added:
+        - 'start': Initializes the bot interaction.
+        - 'help': Provides help information.
+        - 'weather': Returns weather information.
+        - Text messages (non-command): Responds with a GPT response.
+        - Unknown commands: Responds to unrecognized commands.
+
+        Runs the polling process to listen for incoming messages.
+        """
         start_handler = CommandHandler('start', commands.start)
         self.application.add_handler(start_handler)
 
@@ -64,7 +84,6 @@ class Agent(object):
 
         self.application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, commands.gpt_response))
 
-        # Other handlers
         unknown_handler = MessageHandler(filters.COMMAND, commands.unknown)
         self.application.add_handler(unknown_handler)
 
