@@ -6,6 +6,7 @@ from telegram.ext import ContextTypes
 description = """\
 `/help` - Show all commands
 `/weather <city>` - Show weather forecast for the specified city
+`/gpt <prompt>` - Ask GPT a question
 """
 
 
