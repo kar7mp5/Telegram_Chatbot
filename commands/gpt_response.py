@@ -42,25 +42,25 @@ async def gpt_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_prompt = update.message.text
 
     keyword_extract_system_prompt = """
-    Think and write your step-by-step reasoning before responding.  
-    Please write only the fully spelled-out form of the acronym in English that corresponds to the following user's question, without abbreviations or additional text.  
+Think and write your step-by-step reasoning before responding.  
+Please write only the fully spelled-out form of the acronym in English that corresponds to the following user's question, without abbreviations or additional text.  
 
-    For example, if the user asks 'RAG,' output 'Retrieval-Augmented Generation,' or for 'CNN,' output 'Convolutional Neural Network.'
+For example, if the user asks 'RAG,' output 'Retrieval-Augmented Generation,' or for 'CNN,' output 'Convolutional Neural Network.'
 
-    If the user asks about 'MoE,' the output should be 'Mixture of Experts' and nothing else.
-    And you don't know how to response, just say false.
-    """
+If the user asks about 'MoE,' the output should be 'Mixture of Experts' and nothing else.
+And you don't know how to response, just say false.
+"""
     # Set prompt template
     template = """
-    <|begin_of_text|>
-    <|start_header_id|>system<|end_header_id|>
-    {system_prompt}
-    <|eot_id|>
-    <|start_header_id|>user<|end_header_id|>
-    {user_prompt}
-    <|eot_id|>
-    <|start_header_id|>assistant<|end_header_id|>
-    """
+<|begin_of_text|>
+<|start_header_id|>system<|end_header_id|>
+{system_prompt}
+<|eot_id|>
+<|start_header_id|>user<|end_header_id|>
+{user_prompt}
+<|eot_id|>
+<|start_header_id|>assistant<|end_header_id|>
+"""
 
     # Search the keyword of sentence
     prompt = PromptTemplate(
@@ -84,11 +84,10 @@ async def gpt_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         user_prompt = f"{user_prompt} on detail."
         system_prompt = """
-        Please write all conversations in Korean(한국어).
-        Think and write your step-by-step reasoning before responding.
-        Write the article title using ## in Markdown syntax.
-        Please be as specific as possible in your answer.
-        """     
+Please write all conversations in Korean(한국어).
+Think and write your step-by-step reasoning before responding.
+Write the article title using ## in Markdown syntax.
+"""     
         # Inference without RAG
         response = model(prompt.format(system_prompt=system_prompt, user_prompt=user_prompt)).strip()
         
@@ -117,6 +116,7 @@ async def gpt_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
         # Store search keyword in user data for later use
+        context.user_data['question'] = user_prompt
         context.user_data['search_keyword'] = search_keyword[0]
 
         return  # Exit the function to wait for user's response
@@ -128,15 +128,15 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
 
     # Set prompt template
     template = """
-    <|begin_of_text|>
-    <|start_header_id|>system<|end_header_id|>
-    {system_prompt}
-    <|eot_id|>
-    <|start_header_id|>user<|end_header_id|>
-    {user_prompt}
-    <|eot_id|>
-    <|start_header_id|>assistant<|end_header_id|>
-    """
+<|begin_of_text|>
+<|start_header_id|>system<|end_header_id|>
+{system_prompt}
+<|eot_id|>
+<|start_header_id|>user<|end_header_id|>
+{user_prompt}
+<|eot_id|>
+<|start_header_id|>assistant<|end_header_id|>
+"""
 
     # Search the keyword of sentence
     prompt = PromptTemplate(
@@ -166,7 +166,6 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
 Please write all conversations in Korean(한국어).
 Think and write your step-by-step reasoning before responding.
 Write the article title using ## in Markdown syntax.
-Please be as specific as possible in your answer.
 """
 
         # Chain RAG
@@ -179,7 +178,6 @@ Please be as specific as possible in your answer.
             text=response['result']
         )
     
-    # TODO: We need to fix this fucking code...
     elif query.data == 'no_search':
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
@@ -190,13 +188,12 @@ Please be as specific as possible in your answer.
             text="문서 검색 없이 답변하겠습니다."
         )
 
-        user_prompt = f"{query.message.text} on detail by korean."
+        user_prompt = context.user_data.get('question')
         system_prompt = """
-        Please write all conversations in Korean(한국어).
-        Think and write your step-by-step reasoning before responding.
-        Write the article title using ## in Markdown syntax.
-        Please be as specific as possible in your answer.
-        """     
+Please write all conversations in Korean(한국어).
+Think and write your step-by-step reasoning before responding.
+Write the article title using ## in Markdown syntax.
+"""     
         # Inference without RAG
         response = model(prompt.format(system_prompt=system_prompt, user_prompt=user_prompt)).strip()
         
