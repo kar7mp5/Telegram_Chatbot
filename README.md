@@ -3,23 +3,18 @@ Telegram Chatbot
 
 The Telegram bot was created by referring to the [official docs](https://docs.python-telegram-bot.org/en/v21.6/).  
 
----
-### Table of Contents
+## Table of Contents
+1. [Result](#result)  
+2. [Getting Started](#getting-started)  
+3. [Install Libraries](#install-libraries)  
+4. [Run Bot](#run-bot)  
+5. [Telegram MarkdownV2 style](#telegram-markdownv2-style)  
 
-[1. Result](#result)  
-[2. Quick Start](#quick-start)  
-[3. Install Libraries](#install-libraries)  
-[4. Run Bot](#run-bot)  
-[5. File Structure](#file-structure)  
-[6. Telegram MarkdownV2 style](#telegram-markdownv2-style)  
-
----
-### Result
+## Result
 
 ![telegram bot chat image](./result/telegram_bot_chat.png)
 
----
-### Quick Start
+## Getting Started
 > **Environment Variables**  
 ```
 BOT_TOKEN=<Telegram-Bot-API-KEY>
@@ -45,31 +40,15 @@ Use the `/newbot` command to create a new bot. [@BotFather](https://t.me/botfath
 > **Get ChatGPT API**  
 [GPT API Docs](https://platform.openai.com/docs/api-reference/introduction)
 
----
-### Install Libraries
-
+## Install Libraries
 ```bash
 $ pip3 install -r requirements.txt
 ```
 
----
-### Run bot
-
+## Run bot
 ```bash
 $ python3 bot.py
 ```
 
----
-### File Structure 
-
-```
-├── commands/          # Telegram bot commands
-│   └── __init__.py
-│
-└── .env # API keys
-```
-
----
-### Telegram MarkdownV2 style
-
+## Telegram MarkdownV2 style
 [Official docs](https://core.telegram.org/bots/api#markdownv2-style)  
