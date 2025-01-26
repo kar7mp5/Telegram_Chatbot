@@ -1,3 +1,4 @@
+# Telegram
 python-telegram-bot
 python-dotenv
 
@@ -16,3 +17,9 @@ bs4
 chromadb
 
 wikipedia
+
+# Web search (Test)
+googlesearch-python
+
+# Jupyter notebook
+notebook
