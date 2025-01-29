@@ -3,4 +3,4 @@ from sys import path
 
 path.insert(0, dirname(__file__))
 
-from .Text2Markdown import Text2Markdown
+from .Text2Markdown import text2markdown
