@@ -1,5 +1,3 @@
-#! ./venv/bin/python3
-
 """
 bot.py
 
@@ -12,7 +10,7 @@ from telegram import BotCommand
 from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler
 
 # Load bot commands
-import commands
+import Commands
 
 
 # Load the Telegram bot API key
@@ -74,19 +72,19 @@ class Agent(object):
 
         Runs the polling process to listen for incoming messages.
         """
-        start_handler = CommandHandler('start', commands.start)
+        start_handler = CommandHandler('start', Commands.start)
         self.application.add_handler(start_handler)
 
-        help_handler = CommandHandler('help', commands.help)
+        help_handler = CommandHandler('help', Commands.help)
         self.application.add_handler(help_handler)
 
-        weather_handler = CommandHandler('weather', commands.weather)
+        weather_handler = CommandHandler('weather', Commands.weather)
         self.application.add_handler(weather_handler)
 
-        self.application.add_handler(CommandHandler('gpt', commands.gpt_response))
-        self.application.add_handler(CallbackQueryHandler(commands.handle_callback_query))
+        # self.application.add_handler(CommandHandler('gpt', commands.gpt_response))
+        # self.application.add_handler(CallbackQueryHandler(commands.handle_callback_query))
 
-        unknown_handler = MessageHandler(filters.COMMAND, commands.unknown)
+        unknown_handler = MessageHandler(filters.COMMAND, Commands.unknown)
         self.application.add_handler(unknown_handler)
 
         self.application.run_polling()

@@ -27,6 +27,7 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
+            parse_mode="MarkdownV2",
             text="Please provide a city name. Usage: /weather <city>"
         )
         return
@@ -52,6 +53,7 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # Send weather information to the user via Telegram
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
+                parse_mode="MarkdownV2",
                 text=(
                     f"Weather in {city_name}:\n"
                     f"Description: {weather_description}\n"
@@ -64,12 +66,14 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # If the city is not found
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
+                parse_mode="MarkdownV2",
                 text="City not found. Please check the city name and try again."
             )
     except Exception as e:
         # Handle any exceptions during the API call
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
+            parse_mode="MarkdownV2",
             text="Error occurred while retrieving weather data. Please try again later."
         )
         print(f"Error: {e}")

@@ -4,18 +4,18 @@ from telegram import Update
 
 
 # llm libaries
-from langchain_community.llms import Ollama
-from langchain import PromptTemplate
+# from langchain_community.llms import Ollama
+# from langchain import PromptTemplate
 
 
 import wikipedia
 
 # VecDB libaries
-from langchain.docstore.document import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains import RetrievalQA
-from langchain.vectorstores import Chroma
-from langchain.embeddings import SentenceTransformerEmbeddings
+# from langchain.docstore.document import Document
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
+# from langchain.chains import RetrievalQA
+# from langchain.vectorstores import Chroma
+# from langchain.embeddings import SentenceTransformerEmbeddings
 
 
 from dotenv import load_dotenv

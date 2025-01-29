@@ -1,7 +1,5 @@
-# start.py
 from telegram import Update
 from telegram.ext import ContextTypes
-
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start the bot
@@ -12,5 +10,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="I'm a bot, please talk to me!"
+        parse_mode="MarkdownV2",
+        text="*I'm a bot, please talk to me\!*"
     )
