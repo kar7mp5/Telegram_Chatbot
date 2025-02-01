@@ -3,5 +3,5 @@ from sys import path
 
 path.insert(0, dirname(__file__))
 
-from .Text2Markdown import text2markdown
-from .SendMessage import send_message
+from .text2markdown import text2markdown
+from .send_message import send_message
