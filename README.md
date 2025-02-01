@@ -15,7 +15,7 @@ The Telegram bot was created by referring to the [official docs](https://docs.py
 
 ## Result
 
-![telegram bot chat image](./result/telegram_bot_chat.png)
+![telegram bot chat image](./docs/telegram_bot_chat.png)
 
 ## Getting Started
 
