@@ -7,7 +7,7 @@ from telegram import BotCommand
 from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler
 
 # Load bot commands
-from Commands import *
+from commands import *
 
 # Load the Telegram bot API key
 from dotenv import load_dotenv

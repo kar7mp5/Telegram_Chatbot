@@ -6,7 +6,7 @@ import logging
 from dotenv import load_dotenv
 import os
 
-from Tools import send_message
+from tools import send_message
 
 # Load environment variables
 load_dotenv(dotenv_path="../.env")
