@@ -1,0 +1,20 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Ignore virtual environment
+venv/
+
+# Ignore IDE/editor configuration files
+.vscode/
+*.swp
+*.swo
+*.idea/
+*.DS_Store
+
+# Ignore Docker-related files
+.dockerignore
+docker-compose.yml
