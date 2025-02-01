@@ -1,17 +1,24 @@
-import requests
 from telegram import Update
 from telegram.ext import ContextTypes
+import requests
+import logging
 
 from dotenv import load_dotenv
 import os
 
-from Tools import text2markdown
+from Tools import send_message
 
+# Load environment variables
 load_dotenv(dotenv_path="../.env")
 API_KEY = os.getenv("OPENWEATHERMAP_API_KEY")
 
+# Configure logging
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
-async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def Weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles weather commands.
     
     Retrieves and shows weather forecast for the specified city.
@@ -24,10 +31,10 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.args:
         city = " ".join(context.args)
     else:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            parse_mode="MarkdownV2",
-            text=text2markdown("Please provide a city name. Usage: `/weather <city>`")
+        await send_message(
+            update=update,
+            context=context,
+            text="Please provide a city name. Usage: `/weather <city>`"
         )
         return
 
@@ -39,8 +46,6 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
         response = requests.get(url)
         data = response.json()
 
-        print(data)
-
         # Check if the request was successful
         if response.status_code == 200:
             city_name = data["name"]
@@ -50,32 +55,31 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
             wind_speed = data["wind"]["speed"]
 
             # Send weather information to the user via Telegram
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                parse_mode="MarkdownV2",
-                text=(
-                    text2markdown(f"""\
-*Weather in {city_name}*
-Description: *{weather_description}*
-Temperature: *{temperature}°C*
-Humidity: *{humidity}%*
-Wind Speed: *{wind_speed} m/s*\
+            await send_message(
+                update=update,
+                context=context,
+                text=f"""\
+🌆 *Weather in {city_name}*
+🌤️ Description: *{weather_description}*
+🌡️ Temperature: *{temperature}°C*
+💧 Humidity: *{humidity}%*
+🌬️ Wind Speed: *{wind_speed} m/s*\
 """
-                    )
-                )
             )
         else:
             # If the city is not found
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                parse_mode="MarkdownV2",
-                text=text2markdown("*City not found. Please check the city name and try again.*")
+            logging.warning(f"City not found: {city}")
+            await send_message(
+                update=update,
+                context=context,
+                text="🚫 *City not found. Please check the city name and try again.*"
             )
+
     except Exception as e:
         # Handle any exceptions during the API call
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            parse_mode="MarkdownV2",
-            text=text2markdown("*Error occurred while retrieving weather data. Please try again later.*")
+        logging.error(f"Error retrieving weather data for {city}: {e}")
+        await send_message(
+            update=update,
+            context=context,
+            text="⚠️ *Error occurred while retrieving weather data. Please try again later.*"
         )
-        print(f"Error: {e}")
