@@ -6,11 +6,12 @@ The Telegram bot was created by referring to the [official docs](https://docs.py
 
 ## Table of Contents
 
-1. [Result](#result)
-2. [Getting Started](#getting-started)
-3. [Install Libraries](#install-libraries)
-4. [Run Bot](#run-bot)
-5. [Telegram MarkdownV2 style](#telegram-markdownv2-style)
+-   [Result](#result)
+-   [Getting Started](#getting-started)
+    -   [Install Libraries](#install-libraries)
+    -   [Run a Bot](#run-a-bot)
+    -   [Docker build and run](#docker-build-and-run)
+-   [Reference](#reference)
 
 ## Result
 
@@ -50,10 +51,16 @@ Use the `/newbot` command to create a new bot. [@BotFather](https://t.me/botfath
 $ pip3 install -r requirements.txt
 ```
 
-## Run bot
+## Run a bot
 
 ```bash
 $ python3 bot.py
+```
+
+## Docker build and run
+
+```bash
+$ docker-compose up --build
 ```
 
 ## Reference
