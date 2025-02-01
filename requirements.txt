@@ -2,24 +2,13 @@
 python-telegram-bot
 python-dotenv
 
-# For weather forecast
+# API tools
 requests
+aiohttp
+beautifulsoup4
 
 # GPT API
-openai
-
-# Local LLM
-langchain_community
-sentence-transformers
-bs4
-
-# VecDB
-chromadb
-
-wikipedia
-
-# Web search (Test)
-googlesearch-python
+openai>=1.0.0
 
 # Jupyter notebook
-notebook
+# notebook
