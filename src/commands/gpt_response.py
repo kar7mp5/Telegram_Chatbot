@@ -75,7 +75,7 @@ async def _fetch_page_content(url: str) -> str:
     except Exception as e:
         return f"⚠️ Fail to load page content: {e}"
 
-async def _web_search(query: str) -> str:
+async def _web_search(query: str) -> list[str]:
     """
     Uses Google Custom Search API to perform a real web search and fetch page content.
 
@@ -84,12 +84,13 @@ async def _web_search(query: str) -> str:
 
     Returns:
         str: Search result with page content.
+        TODO: Change docs
     """
     params = {
         "key": GOOGLE_API_KEY,
         "cx": GOOGLE_CX_ID,
         "q": query,
-        "num": 1
+        "num": 5
     }
 
     try:
@@ -113,7 +114,7 @@ async def _web_search(query: str) -> str:
 {content}
 </content>\
 """)
-            return "\n".join(output)
+            return output # "\n".join(output)
         else:
             return "No search results found."
 
@@ -139,11 +140,13 @@ async def Handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
         # Click 'Yes'
         search_result = await _web_search(f"Explain about {user_prompt}")
 
+        print(search_result)
+
         system_prompt = f"""\
 Think step-by-step before responding.
 Explain about the following contents:
 <Content>
-{search_result}
+{search_result[0]}
 <\Content>
 Respond in Korean.\
 """
@@ -159,8 +162,8 @@ Respond in Korean.\
         response_text = await _get_gpt_response(system_prompt, user_prompt)
 
     await send_message(
-        update=update, 
-        context=context, 
+        update=update,
+        context=context,
         text=response_text
     )
 
@@ -196,16 +199,16 @@ Respond in Korean.\
 
     # Send a message to the user instructing them to search for this keyword
     await send_message(
-        update=update, 
-        context=context, 
+        update=update,
+        context=context,
         text=f"🔍 *'{keyword}'* 에 대한 웹 검색을 진행할까요?"
     )
 
     context.user_data['question'] = user_prompt
-    
+
     await send_message(
-        update=update, 
-        context=context, 
+        update=update,
+        context=context,
         text="*검색하시겠습니까?*",
         reply_markup=reply_markup
     )
