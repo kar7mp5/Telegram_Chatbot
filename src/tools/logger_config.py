@@ -1,6 +1,16 @@
 import logging
+import datetime
+import os
 
-def setup_logger(log_file='app.log'):
+if not os.path.isdir(os.path.join(os.getcwd(), "log")):
+    # 'log' directory is not existed
+    os.mkdir("log")
+    print("log directory is created.")
+
+# Set the default name of log file as 'year-month-day' format
+log_file = datetime.datetime.now().strftime("%Y-%m-%d")
+
+def setup_logger(log_file=f"{os.getcwd()}/log/{log_file}.log"):
     """
     Configures the logger to write logs to a file and optionally to the console.
 
