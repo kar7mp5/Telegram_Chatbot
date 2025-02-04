@@ -67,3 +67,4 @@ $ docker-compose up --build
 
 -   [Telegram MarkdownV2 style](https://core.telegram.org/bots/api#markdownv2-style)
 -   [Web search library](https://pypi.org/project/googlesearch-python/)
+-   [GPT chat history](https://github.com/atomic14/command_line_chatgpt/blob/main/main.py#L22)
