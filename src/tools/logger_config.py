@@ -25,9 +25,6 @@ def setup_logger(log_file: str = f"{os.getcwd()}/log/{log_file}.log", debug_mode
                         In normal mode, log format is 'timestamp, logger name, log level, and message'.
                         In debug mode, return message shows 'file name'.
                         And log format is 'timestamp, file name, logger name, log level, and message'.
-
-    Example:
-        setup_logger('my_log.log')
     """
     logger = logging.getLogger()
 
