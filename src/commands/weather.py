@@ -34,6 +34,12 @@ async def Weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
         - WARNING: When a city is not found or user provides no city name.
         - ERROR: When an error occurs during the API call or data processing.
     """
+    user = update.effective_user  # Get user information
+    chat_id = update.effective_chat.id
+
+    # Log the help command request
+    logger.info(f"Weather command requested by user '{user.username}' (ID: {user.id}) in chat ID: {chat_id}")
+
     # Get the city name from the user input
     if context.args:
         city = " ".join(context.args)
