@@ -7,20 +7,19 @@ import aiohttp
 
 from dotenv import load_dotenv
 import os
+import logging
+from tools import send_message, setup_logger
 
-from tools import send_message
+# Initialize the logger configuration
+setup_logger()
+logger = logging.getLogger(__name__)
 
 # Load environment variables
-# - OpenAI API key
-# - Google API key
-# - Google CX ID
-# - Google Search url
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 GOOGLE_CX_ID = os.getenv("GOOGLE_CX_ID")
 GOOGLE_SEARCH_URL = "https://www.googleapis.com/customsearch/v1"
-
 
 client = openai.AsyncOpenAI(api_key=OPENAI_API_KEY)
 
@@ -36,6 +35,7 @@ async def _get_gpt_response(system_prompt: str, user_prompt: str) -> str:
     Returns:
         str: GPT-generated response.
     """
+    logger.info(f"Generating GPT response for prompt: {user_prompt}")
     try:
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
@@ -44,10 +44,13 @@ async def _get_gpt_response(system_prompt: str, user_prompt: str) -> str:
                 {"role": "user", "content": user_prompt}
             ]
         )
+        logger.info("GPT response generated successfully.")
         return response.choices[0].message.content
 
     except Exception as e:
+        logger.error(f"GPT response generation error: {e}")
         return f"⚠️ GPT response generation error: {e}"
+
 
 async def _fetch_page_content(url: str) -> str:
     """
@@ -59,21 +62,23 @@ async def _fetch_page_content(url: str) -> str:
     Returns:
         str: Extracted text from the page.
     """
+    logger.info(f"Fetching page content from URL: {url}")
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
                 html = await resp.text()
 
         soup = BeautifulSoup(html, "html.parser")
-
-        # Extract the text from the main content
         paragraphs = soup.find_all("p")
         page_text = "\n".join([para.get_text() for para in paragraphs])
 
-        return page_text[:1500]  # TODO: Change this to be parameter
+        logger.info(f"Successfully fetched content from {url}")
+        return page_text[:1500]
 
     except Exception as e:
+        logger.error(f"Failed to load page content from {url}: {e}")
         return f"⚠️ Fail to load page content: {e}"
+
 
 async def _web_search(query: str) -> list[str]:
     """
@@ -83,9 +88,9 @@ async def _web_search(query: str) -> list[str]:
         query (str): The search query.
 
     Returns:
-        str: Search result with page content.
-        TODO: Change docs
+        list[str]: List of search results with page content.
     """
+    logger.info(f"Performing web search for query: {query}")
     params = {
         "key": GOOGLE_API_KEY,
         "cx": GOOGLE_CX_ID,
@@ -105,21 +110,18 @@ async def _web_search(query: str) -> list[str]:
                 title = res['title']
                 url = res['link']
                 content = await _fetch_page_content(url)
-                output.append(f"""\
-# {title}
-<link>
-{url}
-</link>
-<content>
-{content}
-</content>\
-""")
-            return output # "\n".join(output)
+                output.append(f"""\n# {title}\n<link>{url}</link>\n<content>{content}</content>""")
+            
+            logger.info(f"Web search completed with {len(results)} results.")
+            return output
+
         else:
-            return "No search results found."
+            logger.warning("No search results found.")
+            return ["No search results found."]
 
     except Exception as e:
-        return f"⚠️ Fail to search content: {e}"
+        logger.error(f"Failed to search content: {e}")
+        return [f"⚠️ Fail to search content: {e}"]
 
 
 async def Handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -130,42 +132,26 @@ async def Handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
         update (Update): Telegram update object.
         context (ContextTypes.DEFAULT_TYPE): Telegram bot context.
     """
-    # Get updated answer
     query = update.callback_query
     await query.answer()
 
+    user = update.effective_user
     user_prompt = context.user_data.get('question', '')
 
+    logger.info(f"Callback query '{query.data}' received from '{user.username}' (ID: {user.id})")
+
     if query.data == "yes_search":
-        # Click 'Yes'
         search_result = await _web_search(f"Explain about {user_prompt}")
-
-        print(search_result)
-
-        system_prompt = f"""\
-Think step-by-step before responding.
-Explain about the following contents:
-<Content>
-{search_result[0]}
-<\Content>
-Respond in Korean.\
-"""
-        search_result = await _get_gpt_response(system_prompt, user_prompt)
-
-        response_text = f"🔍 *검색 결과*\n{search_result}"
+        system_prompt = f"""Think step-by-step before responding.\nExplain about the following contents:\n<Content>{search_result[0]}</Content>"""
+        gpt_response = await _get_gpt_response(system_prompt, user_prompt)
+        response_text = f"🔍 *Search result*\n{gpt_response}"
     else:
-        # Click 'No'
-        system_prompt = """\
-Think step-by-step before responding.
-Respond in Korean.\
-"""
+        system_prompt = "Think step-by-step before responding."
         response_text = await _get_gpt_response(system_prompt, user_prompt)
 
-    await send_message(
-        update=update,
-        context=context,
-        text=response_text
-    )
+    logger.info(f"Sending callback response to '{user.username}' (ID: {user.id}): {response_text[:50]}...")
+
+    await send_message(update=update, context=context, text=response_text)
 
 
 async def GPT_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -176,39 +162,29 @@ async def GPT_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
         update (Update): Telegram update object.
         context (ContextTypes.DEFAULT_TYPE): Telegram bot context.
     """
-    # Extract the key topic from user's question
+    user = update.effective_user
     user_prompt = update.message.text
-    system_prompt = f"""\
-Think step-by-step before responding.
-Extract the key topic from the user's question.
-<User Question>
-{user_prompt}
-</User Question>
-Respond in Korean.\
-"""
-    keyword = await _get_gpt_response(system_prompt, "Extract keyword")
 
-    # Generate inline buttons for web search confirmation
+    logger.info(f"Received GPT request from '{user.username}' (ID: {user.id}): {user_prompt}")
+
+    if not user_prompt.replace("/gpt", "").strip():
+        # Except the blank response
+        logger.warning(f"Empty GPT request from '{user.username}' (ID: {user.id})")
+        await send_message(update=update, context=context, text="⚠️ Please provide a valid question.")
+        return
+
+    system_prompt = f"""Think step-by-step before responding.\nExtract the key topic from the user's question.\n<User Question>user_prompt</User Question>\nRespond in Korean."""
+    keyword = await _get_gpt_response(system_prompt, user_prompt)
+
+    logger.info(f"Extracted keyword '{keyword}' from '{user.username}' (ID: {user.id})")
+
     keyboard = [
-        [
-            InlineKeyboardButton("🔎 Yes", callback_data="yes_search"),
-            InlineKeyboardButton("❌ No", callback_data="no_search")
-        ]
+        [InlineKeyboardButton("🔎 Yes", callback_data="yes_search"),
+         InlineKeyboardButton("❌ No", callback_data="no_search")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Send a message to the user instructing them to search for this keyword
-    await send_message(
-        update=update,
-        context=context,
-        text=f"🔍 *'{keyword}'* 에 대한 웹 검색을 진행할까요?"
-    )
-
+    await send_message(update=update, context=context, text=f"🔍 Search for *'{keyword}'*?")
     context.user_data['question'] = user_prompt
 
-    await send_message(
-        update=update,
-        context=context,
-        text="*검색하시겠습니까?*",
-        reply_markup=reply_markup
-    )
+    await send_message(update=update, context=context, text="*Search?*", reply_markup=reply_markup)
