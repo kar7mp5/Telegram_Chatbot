@@ -13,12 +13,14 @@ import os
 # Load bot commands
 from commands import *
 
-# Initialize the logger configuration
-setup_logger()
-logger = logging.getLogger(__name__)
-
-
 class Agent:
+    # Initialize the logger configuration
+    setup_logger()
+    logger = logging.getLogger(__name__)
+
+    # Load environment variables
+    load_dotenv()
+    TOKEN = os.getenv("BOT_TOKEN")
 
     def __init__(self):
         """
@@ -26,62 +28,12 @@ class Agent:
         from the environment and setting up the application, logging,
         and bot commands.
         """
-        load_dotenv()
-        TOKEN = os.getenv("BOT_TOKEN")
-
         self.application = (
             ApplicationBuilder()
-            .token(TOKEN)
+            .token(self.TOKEN)
             .post_init(self._post_init)
             .build()
         )
-
-    def update_handler(self):
-        """
-        Configures the handlers for commands and starts polling for updates.
-        """
-        handlers = [
-            (CommandHandler("start", start), "/start"),
-            (CommandHandler("help", help), "/help"),
-            (CommandHandler("weather", weather), "/weather"),
-            (CommandHandler("gpt", gpt_response), "/gpt"),
-            (CallbackQueryHandler(handle_callback_query, pattern="^gpt_.*"), "gpt callback"),
-            (CommandHandler("test", test_response), "/test"),
-            (CommandHandler("empty", empty), "/empty"),
-            (CallbackQueryHandler(button_handler, pattern="^test_.*"), "test callback")
-        ]
-
-        logger.info("Initializing command handlers...")
-        for handler, description in handlers:
-            self.application.add_handler(handler)
-            logger.info(f"Handler added for '{description}' command.")
-        
-        # self.application.add_handler(CommandHandler('start', start))
-        # logger.info("Handler added for '/start' command.")
-
-        # self.application.add_handler(CommandHandler('help', help))
-        # logger.info("Handler added for '/help' command.")
-
-        # self.application.add_handler(CommandHandler('weather', weather))
-        # logger.info("Handler added for '/weather' command.")
-
-        # self.application.add_handler(CommandHandler('gpt', gpt_response))
-        # self.application.add_handler(CallbackQueryHandler(handle_callback_query, pattern="^gpt_.*"))
-        # logger.info("Handler added for '/gpt' command.")
-
-        # self.application.add_handler(CommandHandler('test', test_response))
-        # self.application.add_handler(CallbackQueryHandler(button_handler, pattern="^test_.*"))
-        # logger.info("Handler added for '/test' command.")
-
-        unknown_handler = MessageHandler(filters.COMMAND, unknown)
-        self.application.add_handler(unknown_handler)
-        logger.info("Unknown command handler added.")
-
-        try:
-            logger.info("Bot is starting polling...")
-            self.application.run_polling()
-        except Exception as e:
-            logger.error(f"An error occurred during polling: {e}")
 
     async def _post_init(self, application: Application):
         """
@@ -99,6 +51,37 @@ class Agent:
             BotCommand(command="empty", description="Empty chat history")
         ]
         await application.bot.set_my_commands(commands_list)
+
+    def update_handler(self):
+        """
+        Configures the handlers for commands and starts polling for updates.
+        """
+        gpt_agent = GPT_Agent()
+        handlers = [
+            (CommandHandler("start", start), "/start"),
+            (CommandHandler("help", help), "/help"),
+            (CommandHandler("weather", weather), "/weather"),
+            (CommandHandler("gpt", gpt_agent.gpt_response), "/gpt"),
+            (CallbackQueryHandler(gpt_agent.handle_callback_query, pattern="^gpt_.*"), "gpt callback"),
+            (CommandHandler("test", test_response), "/test"),
+            (CommandHandler("empty", empty), "/empty"),
+            (CallbackQueryHandler(button_handler, pattern="^test_.*"), "test callback")
+        ]
+
+        self.logger.info("Initializing command handlers...")
+        for handler, description in handlers:
+            self.application.add_handler(handler)
+            self.logger.info(f"Handler added for '{description}' command.")
+        
+        unknown_handler = MessageHandler(filters.COMMAND, unknown)
+        self.application.add_handler(unknown_handler)
+        self.logger.info("Unknown command handler added.")
+
+        try:
+            self.logger.info("Bot is starting polling...")
+            self.application.run_polling()
+        except Exception as e:
+            self.logger.error(f"An error occurred during polling: {e}")
 
 
 if __name__ == '__main__':
