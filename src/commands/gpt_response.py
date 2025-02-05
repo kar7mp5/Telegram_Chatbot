@@ -150,7 +150,7 @@ async def _web_search(query: str) -> list[dict[str, str]]:
         }]
 
 
-async def Handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Handles inline button responses for web search.
 
