@@ -166,7 +166,7 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
 
     logger.info(f"Callback query '{query.data}' received from '{user.username}' (ID: {user.id})")
 
-    if query.data == "yes_search":
+    if query.data == "gpt_yes_search":
         # Click 'Yes' button
         search_result = await _web_search(f"Explain about {user_prompt}")
         
@@ -355,10 +355,10 @@ Key_topic"""
 
     logger.info(f"Extracted keyword '{keyword}' from '{user.username}' (ID: {user.id})")
 
-    keyboard = [
-        [InlineKeyboardButton("🔎 Yes", callback_data="yes_search"),
-         InlineKeyboardButton("❌ No", callback_data="no_search")]
-    ]
+    keyboard = [[
+        InlineKeyboardButton("🔎 Yes", callback_data="gpt_yes_search"),
+        InlineKeyboardButton("❌ No", callback_data="gpt_no_search")
+    ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.user_data['question'] = user_prompt
 
