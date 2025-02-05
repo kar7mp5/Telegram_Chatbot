@@ -364,5 +364,5 @@ Key_topic"""
 
     await send_message(update=update, 
                        context=context, 
-                       text=f"🔍 Search for *'{keyword}'*?", 
+                       text=f"🔍 Search for `{keyword}`?", 
                        reply_markup=reply_markup)
