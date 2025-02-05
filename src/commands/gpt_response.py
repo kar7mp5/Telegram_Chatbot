@@ -325,7 +325,7 @@ Think step-by-step before responding."""
     await send_message(update=update, context=context, text=response_text)
 
 
-async def GPT_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def gpt_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Handles user messages and generates a GPT response.
 

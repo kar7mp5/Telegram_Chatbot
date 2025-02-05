@@ -7,7 +7,7 @@ import logging
 setup_logger()
 logger = logging.getLogger(__name__)
 
-async def Help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Handles the `/help` command.
 

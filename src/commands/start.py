@@ -7,7 +7,7 @@ import logging
 setup_logger()
 logger = logging.getLogger(__name__)
 
-async def Start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Handles the `/start` command.
 

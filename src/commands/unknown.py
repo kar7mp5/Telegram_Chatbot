@@ -7,7 +7,7 @@ import logging
 setup_logger()
 logger = logging.getLogger(__name__)
 
-async def Unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Handles unknown or unrecognized commands.
 

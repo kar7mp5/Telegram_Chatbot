@@ -42,25 +42,25 @@ class Agent:
         """
         logger.info("Initializing command handlers...")
 
-        start_handler = CommandHandler('start', Start)
+        start_handler = CommandHandler('start', start)
         self.application.add_handler(start_handler)
         logger.info("Handler added for /start command.")
 
-        help_handler = CommandHandler('help', Help)
+        help_handler = CommandHandler('help', help)
         self.application.add_handler(help_handler)
         logger.info("Handler added for /help command.")
 
-        weather_handler = CommandHandler('weather', Weather)
+        weather_handler = CommandHandler('weather', weather)
         self.application.add_handler(weather_handler)
         logger.info("Handler added for /weather command.")
 
-        self.application.add_handler(CommandHandler('gpt', GPT_response))
+        self.application.add_handler(CommandHandler('gpt', gpt_response))
         logger.info("Handler added for /gpt command.")
 
-        self.application.add_handler(CallbackQueryHandler(Handle_callback_query))
+        self.application.add_handler(CallbackQueryHandler(handle_callback_query))
         logger.info("Callback query handler added.")
 
-        unknown_handler = MessageHandler(filters.COMMAND, Unknown)
+        unknown_handler = MessageHandler(filters.COMMAND, unknown)
         self.application.add_handler(unknown_handler)
         logger.info("Unknown command handler added.")
 
