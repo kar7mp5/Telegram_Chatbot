@@ -40,25 +40,38 @@ class Agent:
         """
         Configures the handlers for commands and starts polling for updates.
         """
+        handlers = [
+            (CommandHandler("start", start), "/start"),
+            (CommandHandler("help", help), "/help"),
+            (CommandHandler("weather", weather), "/weather"),
+            (CommandHandler("gpt", gpt_response), "/gpt"),
+            (CallbackQueryHandler(handle_callback_query, pattern="^gpt_.*"), "gpt callback"),
+            (CommandHandler("test", test_response), "/test"),
+            (CommandHandler("empty", empty), "/empty"),
+            (CallbackQueryHandler(button_handler, pattern="^test_.*"), "test callback")
+        ]
+
         logger.info("Initializing command handlers...")
+        for handler, description in handlers:
+            self.application.add_handler(handler)
+            logger.info(f"Handler added for '{description}' command.")
+        
+        # self.application.add_handler(CommandHandler('start', start))
+        # logger.info("Handler added for '/start' command.")
 
-        start_handler = CommandHandler('start', start)
-        self.application.add_handler(start_handler)
-        logger.info("Handler added for /start command.")
+        # self.application.add_handler(CommandHandler('help', help))
+        # logger.info("Handler added for '/help' command.")
 
-        help_handler = CommandHandler('help', help)
-        self.application.add_handler(help_handler)
-        logger.info("Handler added for /help command.")
+        # self.application.add_handler(CommandHandler('weather', weather))
+        # logger.info("Handler added for '/weather' command.")
 
-        weather_handler = CommandHandler('weather', weather)
-        self.application.add_handler(weather_handler)
-        logger.info("Handler added for /weather command.")
+        # self.application.add_handler(CommandHandler('gpt', gpt_response))
+        # self.application.add_handler(CallbackQueryHandler(handle_callback_query, pattern="^gpt_.*"))
+        # logger.info("Handler added for '/gpt' command.")
 
-        self.application.add_handler(CommandHandler('gpt', gpt_response))
-        logger.info("Handler added for /gpt command.")
-
-        self.application.add_handler(CallbackQueryHandler(handle_callback_query))
-        logger.info("Callback query handler added.")
+        # self.application.add_handler(CommandHandler('test', test_response))
+        # self.application.add_handler(CallbackQueryHandler(button_handler, pattern="^test_.*"))
+        # logger.info("Handler added for '/test' command.")
 
         unknown_handler = MessageHandler(filters.COMMAND, unknown)
         self.application.add_handler(unknown_handler)
@@ -81,7 +94,9 @@ class Agent:
         commands_list: list[BotCommand] = [
             BotCommand(command="help", description="Shows the help menu"),
             BotCommand(command="weather", description="Displays current weather info"),
-            BotCommand(command="gpt", description="Ask GPT a qestion!")
+            BotCommand(command="gpt", description="Ask GPT a qestion!"),
+            BotCommand(command="test", description="Test command"),
+            BotCommand(command="empty", description="Empty chat history")
         ]
         await application.bot.set_my_commands(commands_list)
 
