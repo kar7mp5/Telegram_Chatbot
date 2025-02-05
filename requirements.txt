@@ -1,5 +1,5 @@
 # Telegram
-python-telegram-bot
+python-telegram-bot>=20.6
 python-dotenv
 
 # API tools
