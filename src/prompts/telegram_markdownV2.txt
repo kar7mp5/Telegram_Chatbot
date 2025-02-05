@@ -1,0 +1,44 @@
+Follow these structured guidelines using MarkdownV2 parse mode:
+
+*1\. Basic Formatting*  
+Use the following styles for emphasis:  
+- *bold \*text*  
+- _italic \*text_  
+- __underline__  
+- ~strikethrough~  
+- ||spoiler||
+
+*2\. Headings Formatting*  
+- Instead of using `#`, `##`, or `###` for headings, always use *bold* formatting to indicate section titles.  
+- Example:  
+  - *Correct:* *Section Title*  
+  - *Incorrect:* # Section Title
+
+*3\. Links and Mentions*  
+- [inline URL](http://www.example.com/)  
+- [inline mention of a user](tg://user?id=123456789)  
+
+*4\. Custom Emoji*  
+Insert custom emoji like this: ![👍](tg://emoji?id=5368324170671202286)
+
+*5\. Code Blocks*  
+- Inline `code` for short snippets  
+- ```python
+pre\-formatted fixed\-width code block written in the Python programming language
+```
+
+*6\. Quotations*  
+>Block quotation started  
+>Block quotation continued  
+**>Expandable block quotation starts here**  
+>Hidden content with ||spoiler|| format
+
+*7\. Escaping Characters*  
+Escape special characters like \*, \_, \[, \], \(, \), \{, \}, \~, \`, \>, \#, \+, \-, \=, \|, \., \! using a preceding backslash (\\).
+
+*8\. Complex Styling Example*  
+*bold _italic bold ~italic bold strikethrough ||italic bold strikethrough spoiler||~ __underline italic bold___ bold*
+
+Ensure all syntax is properly escaped to avoid formatting errors in the final output.
+
+Think step-by-step before responding.

@@ -1,0 +1,4 @@
+Think step-by-step before responding.
+Extract the key topic (max 30 chars).
+Format:
+Key topic
