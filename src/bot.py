@@ -3,7 +3,7 @@ We are trying to create a bot that can communicate through the LLM model.
 The ability to give commands through `/` in Telegram and chat with bots in general conversations.
 """
 from telegram import BotCommand
-from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler
+from telegram.ext import *
 
 from tools import setup_logger
 from dotenv import load_dotenv
@@ -28,15 +28,19 @@ class Agent:
         """
         load_dotenv()
         TOKEN = os.getenv("BOT_TOKEN")
-        self.application = ApplicationBuilder().token(TOKEN).build()
 
-        self._command_preview()
+        self.application = (
+            ApplicationBuilder()
+            .token(TOKEN)
+            .post_init(self._post_init)
+            .build()
+        )
 
     def update_handler(self):
         """
         Configures the handlers for commands and starts polling for updates.
         """
-        logger.info("Initializing command handlers...")  # Custom log
+        logger.info("Initializing command handlers...")
 
         start_handler = CommandHandler('start', Start)
         self.application.add_handler(start_handler)
@@ -66,17 +70,20 @@ class Agent:
         except Exception as e:
             logger.error(f"An error occurred during polling: {e}")
 
-    def _command_preview(self):
+    async def _post_init(self, application: Application):
         """
-        Registers the bot commands that users can call, such as 'help' and 'weather'.
+        Registers the bot commands that users can call.
         These commands provide descriptions for use in the bot interface.
+        
+        Args:
+            application (telegram.ext.Application): This class dispatches all kinds of updates to its registered handlers, and is the entry point to a PTB application.
         """
-        commands_list = [
-            BotCommand(command="help", description="도움말 보기"),
-            BotCommand(command="weather", description="날씨 정보 확인"),
-            BotCommand(command="gpt", description="GPT 질문")
+        commands_list: list[BotCommand] = [
+            BotCommand(command="help", description="Shows the help menu"),
+            BotCommand(command="weather", description="Displays current weather info"),
+            BotCommand(command="gpt", description="Ask GPT a qestion!")
         ]
-        self.application.bot.set_my_commands(commands_list)
+        await application.bot.set_my_commands(commands_list)
 
 
 if __name__ == '__main__':
