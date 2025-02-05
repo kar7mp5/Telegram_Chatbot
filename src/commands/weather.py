@@ -17,7 +17,7 @@ setup_logger()
 logger = logging.getLogger(__name__)
 
 
-async def Weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Handles the `/weather` command in Telegram.
 
