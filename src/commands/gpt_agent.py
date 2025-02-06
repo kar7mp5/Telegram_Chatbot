@@ -9,7 +9,7 @@ import logging
 import os
 
 from tools import send_message, setup_logger, load_prompt
-
+from database import save_message, load_messages
 
 class GPT_Agent:
     """
@@ -258,6 +258,9 @@ Think step-by-step before responding.
 Think step-by-step before responding.
 """
             response_text = await self._get_response(system_prompt, user_prompt)
+        
+        # Save chat history
+        save_message(user.id, user.username, response_text)
         self.logger.info(f"Sending callback response to '{user.username}' (ID: {user.id}): {response_text[:50]}...")
 
         await send_message(update=update, context=context, text=response_text)
