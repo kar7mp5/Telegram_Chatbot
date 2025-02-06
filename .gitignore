@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Exception databses
+*.db
+
 # C extensions
 *.so
 
