@@ -9,7 +9,7 @@ import logging
 import os
 
 from tools import send_message, setup_logger, load_prompt
-from database import save_message, load_messages
+from databases import ChatDatabase
 
 class GPT_Agent:
     """
@@ -30,7 +30,7 @@ class GPT_Agent:
     GOOGLE_CX_ID = os.getenv("GOOGLE_CX_ID")
     GOOGLE_SEARCH_URL = "https://www.googleapis.com/customsearch/v1"
 
-    # GPT API environment variables
+    # GPT setting environment variables
     TEMPERATURE = 0.5
     MAX_TOKENS = 500
     FREQUENCY_PENALTY = 0
@@ -38,12 +38,17 @@ class GPT_Agent:
     MAX_CONTEXT_QUESTIONS = 10
 
     # Scraping limitation.
-    PAGE_LIMIT = 1500 
+    PAGE_LIMIT = 1500
 
-    _path = os.path.join(os.getcwd(), "src/prompts")
-    # System prompt
-    MAKRDOWN_PROMPT: str = load_prompt(os.path.join(_path, "telegram_markdownV2.txt"))
-    KEYWORD_PROMPT: str = load_prompt(os.path.join(_path, "keyword_extraction.txt"))
+    # Set chat history databases
+    chat_database = ChatDatabase()
+    chat_database.init_user_db()
+    chat_database.init_chat_db()
+
+    # Load system prompts
+    _base_path: str = os.path.join(os.getcwd(), "src/prompts")
+    MAKRDOWN_PROMPT: str = load_prompt(os.path.join(_base_path, "telegram_markdownV2.txt"))
+    KEYWORD_PROMPT: str = load_prompt(os.path.join(_base_path, "keyword_extraction.txt"))
 
     def __init__(self):
         """
@@ -260,7 +265,8 @@ Think step-by-step before responding.
             response_text = await self._get_response(system_prompt, user_prompt)
         
         # Save chat history
-        save_message(user.id, user.username, response_text)
+        self.chat_database.save_message(user.id, user.username, user_prompt)
+        self.chat_database.save_message(1478, "Bot", response_text)
         self.logger.info(f"Sending callback response to '{user.username}' (ID: {user.id}): {response_text[:50]}...")
 
         await send_message(update=update, context=context, text=response_text)

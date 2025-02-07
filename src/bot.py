@@ -12,7 +12,6 @@ import os
 
 # Load bot commands
 from commands import *
-from database import init_user_db, init_chat_db
 
 class Agent:
     # Initialize the logger configuration
@@ -22,9 +21,6 @@ class Agent:
     # Load environment variables
     load_dotenv()
     TOKEN = os.getenv("BOT_TOKEN")
-
-    init_user_db()
-    init_chat_db()
 
     def __init__(self):
         """
