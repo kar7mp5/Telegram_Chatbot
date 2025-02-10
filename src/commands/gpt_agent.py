@@ -9,7 +9,7 @@ import logging
 import os
 
 from tools import send_message, setup_logger, load_prompt
-from databases import ChatDatabase
+from databases import init_user_db, save_message, load_messages
 
 class GPT_Agent:
     """
@@ -40,10 +40,8 @@ class GPT_Agent:
     # Scraping limitation.
     PAGE_LIMIT = 1500
 
-    # Set chat history databases
-    chat_database = ChatDatabase()
-    chat_database.init_user_db()
-    chat_database.init_chat_db()
+    # Initiaulize chat history databases
+    init_user_db()
 
     # Load system prompts
     _base_path: str = os.path.join(os.getcwd(), "src/prompts")
@@ -78,12 +76,64 @@ class GPT_Agent:
         Returns:
             str: GPT-generated response.
         """
-        self.logger.info(f"Generating GPT response for prompt: {user_prompt}")
+        self.logger.info(f"Generating GPT response for prompt")
 
         messages = [
             {"role": "system", "content": system_prompt}
         ]
         # TODO: Add previous questions and answers
+        messages.append({"role": "user", "content": user_prompt})
+
+        try:
+            response = await self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=messages,
+                temperature=self.TEMPERATURE,
+                max_tokens=self.MAX_TOKENS,
+                top_p=1,
+                frequency_penalty=self.FREQUENCY_PENALTY,
+                presence_penalty=self.PRESENCE_PENALTY,
+            )
+            self.logger.info("GPT response generated successfully.")
+            return response.choices[0].message.content
+        except Exception as e:
+            self.logger.error(f"GPT response generation error: {e}")
+            return f"⚠️ GPT response generation error: {e}"
+
+    async def _get_response_chat_history(self, system_prompt: str, user_prompt: str, user_id: int, username: str) -> str:
+        """
+        Generates a response from the GPT API, including previous chat history.
+
+        Args:
+            system_prompt (str): Instruction for the GPT model.
+            user_prompt (str): User's new input message.
+            user_id (int): Unique identifier of the user.
+            username (str): Telegram username of the user.
+
+        Returns:
+            str: GPT-generated response.
+        """
+        self.logger.info(f"Generating GPT response for user ({username}): {user_prompt}")
+
+        # Fetch previous chat history from the database
+        chat_history = load_messages(user_id, username)
+        
+        # Prepare message format for GPT API
+        messages = [{"role": "system", "content": system_prompt}]
+
+        # Process chat history and add it as context
+        previous_questions_and_answers = []
+        for record in chat_history[-self.MAX_CONTEXT_QUESTIONS:]:  # Keep only the most recent context messages
+            question, sender, message, timestamp = record
+            if sender == "user":
+                previous_questions_and_answers.append({"role": "user", "content": message})
+            elif sender == "bot":
+                previous_questions_and_answers.append({"role": "assistant", "content": message})
+
+        # Append processed history
+        messages.extend(previous_questions_and_answers)
+
+        # Append new user question
         messages.append({"role": "user", "content": user_prompt})
 
         try:
@@ -190,16 +240,39 @@ class GPT_Agent:
         """
         user = update.effective_user
         user_prompt = update.message.text.replace("/gpt", "") # Exception of command keyword
-
+        
         self.logger.info(f"Received GPT request from '{user.username}' (ID: {user.id}): {user_prompt}")
 
         # Exception of the blank response
         if not user_prompt.strip():
             self.logger.warning(f"Empty GPT request from '{user.username}' (ID: {user.id})")
-            await send_message(update=update, 
-                            context=context, 
-                            text="⚠️ Please provide a valid question.")
+            await send_message(update=update, context=context, text="⚠️ Please provide a valid question.")
             return
+
+        response_text: str = await self._get_response(self.MAKRDOWN_PROMPT, user_prompt)
+
+        self.logger.info(f"Sending callback response to '{user.username}' (ID: {user.id}): {response_text[:50]}...")
+        await send_message(update=update, context=context, text=response_text)
+
+    async def search_response(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """
+        Handles user messages and generates a GPT response.
+
+        Args:
+            update (Update): Telegram update object.
+            context (ContextTypes.DEFAULT_TYPE): Telegram bot context.
+        """
+        user = update.effective_user
+        user_prompt = update.message.text.replace("/search", "") # Exception of command keyword
+        
+        self.logger.info(f"Received GPT request from '{user.username}' (ID: {user.id}): {user_prompt}")
+
+        # Exception of the blank response
+        if not user_prompt.strip():
+            self.logger.warning(f"Empty GPT request from '{user.username}' (ID: {user.id})")
+            await send_message(update=update, context=context, text="⚠️ Please provide a valid question.")
+            return
+
         keyword: str = await self._get_response(self.KEYWORD_PROMPT, user_prompt)
 
         self.logger.info(f"Extracted keyword '{keyword}' from '{user.username}' (ID: {user.id})")
@@ -211,10 +284,12 @@ class GPT_Agent:
         reply_markup = InlineKeyboardMarkup(keyboard)
         context.user_data['question'] = user_prompt
 
-        await send_message(update=update, 
-                        context=context, 
-                        text=f"🔍 Search for `{keyword}`?", 
-                        reply_markup=reply_markup)
+        await send_message(
+            update=update, 
+            context=context, 
+            text=f"🔍 Search for `{keyword}`?", 
+            reply_markup=reply_markup
+        )
 
     async def handle_callback_query(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """
@@ -247,7 +322,7 @@ Think step-by-step before responding.
 Response by the following format:
 <response>
 """
-                gpt_response = await self._get_response(system_prompt, user_prompt)
+                gpt_response = await self._get_response_chat_history(system_prompt, user_prompt, user.id, user.username)
                 response_text = f"🔍 *Search result*\n{gpt_response}"
             # Fail to web searching
             elif search_result[0]["status"] == "error":
@@ -255,18 +330,18 @@ Response by the following format:
 {self.MAKRDOWN_PROMPT}
 Think step-by-step before responding.
 """
-                response_text = await self._get_response(system_prompt, user_prompt)
+                response_text = await self._get_response_chat_history(system_prompt, user_prompt, user.id, user.username)
         # Click 'No' button
         else:
             system_prompt: str = f"""\
 {self.MAKRDOWN_PROMPT}
 Think step-by-step before responding.
 """
-            response_text = await self._get_response(system_prompt, user_prompt)
-        
+            response_text = await self._get_response_chat_history(system_prompt, user_prompt, user.id, user.username)
+
         # Save chat history
-        self.chat_database.save_message(user.id, user.username, user_prompt)
-        self.chat_database.save_message(1478, "Bot", response_text)
+        save_message(user.id, user.username, "user", user_prompt)
+        save_message(user.id, user.username, "bot", response_text)
         self.logger.info(f"Sending callback response to '{user.username}' (ID: {user.id}): {response_text[:50]}...")
 
         await send_message(update=update, context=context, text=response_text)

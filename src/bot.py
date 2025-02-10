@@ -47,6 +47,7 @@ class Agent:
             BotCommand(command="help", description="Shows the help menu"),
             BotCommand(command="weather", description="Displays current weather info"),
             BotCommand(command="gpt", description="Ask GPT a qestion!"),
+            BotCommand(command="search", description="Ask GPT a qestion with web search"),
             BotCommand(command="test", description="Test command"),
             BotCommand(command="empty", description="Empty chat history")
         ]
@@ -62,6 +63,7 @@ class Agent:
             (CommandHandler("help", help), "/help"),
             (CommandHandler("weather", weather), "/weather"),
             (CommandHandler("gpt", gpt_agent.gpt_response), "/gpt"),
+            (CommandHandler("search", gpt_agent.search_response), "/search"),
             (CallbackQueryHandler(gpt_agent.handle_callback_query, pattern="^gpt_.*"), "gpt callback"),
             (CommandHandler("test", test_response), "/test"),
             (CommandHandler("empty", empty), "/empty"),
